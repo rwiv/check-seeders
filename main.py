@@ -9,18 +9,18 @@ def main():
     filenames = os.listdir("./torrents")
 
     with open("./output/result.json", "w") as file:
-        infos = getInfos(filenames)
-        file.write(json.dumps(infos, indent=4))
+        result = getResult(filenames)
+        file.write(json.dumps(result, indent=4))
 
-def getInfos(filenames):
-    def getInfo(filename):
+def getResult(filenames):
+    def toInfo(filename):
         lines = execTransmission(filename)
         return {
             "filename": filename,
             "trackers": filterError(getTrackers(lines))
         }
 
-    return list(map(getInfo, filenames))
+    return list(map(toInfo, filenames))
 
 def execTransmission(filename):
     cmd = f"transmission-show -s './torrents/{filename}'"
@@ -42,8 +42,8 @@ def getTrackers(lines):
     return list(map(toTrackerObj, filter(isTracker, lines)))
 
 def filterError(trackers):
-    isError = lambda tracker: tracker["state"].find("error") == -1
-    return list(filter(isError, trackers))
+    isNotError = lambda tracker: tracker["state"].find("error") == -1
+    return list(filter(isNotError, trackers))
 
 
 main()
