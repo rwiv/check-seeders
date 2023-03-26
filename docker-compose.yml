@@ -1,8 +1,8 @@
 version: "3.9"
 services:
-  tm:
+  transmission:
     image: linuxserver/transmission:latest
-    container_name: tm
+    container_name: transmission
     working_dir: /usr/src/app
     entrypoint: python main.py
     volumes:
