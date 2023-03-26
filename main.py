@@ -2,7 +2,12 @@ import os
 import subprocess
 import json
 
-def main(filenames):
+def main():
+    if not os.path.exists("./output"):
+        os.mkdir("./output")
+
+    filenames = os.listdir("./torrents")
+
     with open("./output/result.json", "w") as file:
         infos = getInfos(filenames)
         file.write(json.dumps(infos, indent=4))
@@ -10,7 +15,6 @@ def main(filenames):
 def getInfos(filenames):
     def getInfo(filename):
         lines = execTransmission(filename)
-        
         return {
             "filename": filename,
             "trackers": filterError(getTrackers(lines))
@@ -25,8 +29,8 @@ def execTransmission(filename):
         .split("\n")
 
 def getTrackers(lines):
-    isTracker = lambda line: line.find(" ... ") != -1
-    filtered = filter(isTracker, lines)
+    def isTracker(line):
+        return line.find(" ... ") != -1
 
     def toTrackerObj(line):
         chunks = line.split(" ... ")
@@ -35,11 +39,11 @@ def getTrackers(lines):
             "state": chunks[1]
         }
 
-    return list(map(toTrackerObj, filtered))
+    return list(map(toTrackerObj, filter(isTracker, lines)))
 
 def filterError(trackers):
     isError = lambda tracker: tracker["state"].find("error") == -1
     return list(filter(isError, trackers))
 
 
-main(os.listdir("./torrents"))
+main()
